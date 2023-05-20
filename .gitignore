@@ -1,0 +1,18 @@
+# base
+*.pyc
+*.pyo
+*.sqlite3
+*.log
+*.pytest_cache
+__pycache__/
+
+# env data
+.venv
+.env
+.env.db
+
+# static
+social_network/static/
+
+# media
+social_network/media/
