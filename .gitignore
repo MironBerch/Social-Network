@@ -12,7 +12,8 @@ __pycache__/
 .env.db
 
 # static
-social_network/static/
+social_network/static/*
 
 # media
-social_network/media/
+social_network/media/*
+!social_network/media/default
