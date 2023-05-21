@@ -17,9 +17,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'accounts',
-
     'rest_framework',
+    'rest_framework.authtoken',
+
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -100,3 +101,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # User model
 
 AUTH_USER_MODEL = 'accounts.User'
+
+
+# Django Rest Framework
+
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+      'rest_framework.authentication.TokenAuthentication',
+    )
+}
