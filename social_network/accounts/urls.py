@@ -5,6 +5,7 @@ from accounts.views import (
     SigninAPIView,
     SignoutAPIView,
     ProfileSettingsAPIView,
+    ProfileAPIView,
 )
 
 
@@ -25,7 +26,12 @@ urlpatterns = [
         name='signout',
     ),
     path(
-        route='profile/settings/',
+        route='profile/<str:username>/',
+        view=ProfileAPIView.as_view(),
+        name='profile_view',
+    ),
+    path(
+        route='profile-settings/',
         view=ProfileSettingsAPIView.as_view(),
         name='profile_settings',
     ),

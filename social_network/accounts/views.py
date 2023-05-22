@@ -2,14 +2,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import redirect
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate, login, logout
 
+from accounts.permissions import IsUserProfileOwner
 from accounts.serializers import SignupSerializer, ProfileSerializer
 from accounts.services import (
     get_user_by_request,
     get_user_profile,
     create_user_profile,
+    get_user_by_username,
 )
 
 
@@ -67,6 +69,8 @@ class SignoutAPIView(APIView):
     Signout API view.
     """
 
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request):
         logout(request)
         return redirect('signin')
@@ -77,7 +81,7 @@ class ProfileSettingsAPIView(APIView):
     Profile setting API view.
     """
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsUserProfileOwner,)
 
     def get(self, request):
         profile = get_user_profile(
@@ -111,4 +115,27 @@ class ProfileSettingsAPIView(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class ProfileAPIView(APIView):
+    """
+    Profile  API view.
+    """
+
+    permission_classes = (AllowAny,)
+
+    def get(self, request, username):
+        profile = get_user_profile(
+            user=get_user_by_username(username=username),
+        )
+
+        return Response(
+            {
+                'user': profile.user.username,
+                'profile_image': profile.profile_image.url,
+                'profile_banner': profile.profile_banner.url,
+                'gender': profile.gender,
+                'description': profile.description,
+            }
         )
