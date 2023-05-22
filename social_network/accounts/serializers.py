@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from accounts.models import User
+from accounts.models import User, Profile
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -45,4 +45,24 @@ class SignupSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'password',
+        )
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """
+    User profile serializer.
+    """
+
+    gender = serializers.ChoiceField(
+        required=False,
+        choices=Profile.GENDER_CHOICES,
+    )
+
+    class Meta:
+        model = Profile
+        fields = (
+            'profile_image',
+            'profile_banner',
+            'gender',
+            'description',
         )

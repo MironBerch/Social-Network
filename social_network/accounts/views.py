@@ -1,27 +1,30 @@
-from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.authtoken.models import Token
+from django.shortcuts import redirect
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate, login, logout
 
-from accounts.serializers import SignupSerializer
+from accounts.serializers import SignupSerializer, ProfileSerializer
+from accounts.services import (
+    get_user_by_request,
+    get_user_profile,
+    create_user_profile,
+)
 
 
 class SignupAPIView(APIView):
     """
-    Signup view.
+    Signup API view.
     """
 
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            create_user_profile(user=user)
             if user:
-                token = Token.objects.create(
-                    user=user,
-                )
                 json = serializer.data
-                json['token'] = token.key
                 return Response(
                     json,
                     status=status.HTTP_201_CREATED,
@@ -34,7 +37,7 @@ class SignupAPIView(APIView):
 
 class SigninAPIView(APIView):
     """
-    Signin view.
+    Signin API view.
     """
 
     def post(self, request):
@@ -48,11 +51,8 @@ class SigninAPIView(APIView):
         )
 
         if user is not None:
-            token = Token.objects.get(
-                user=user,
-            )
+            login(request, user)
             return Response(
-                token.key,
                 status=status.HTTP_200_OK,
             )
 
@@ -60,3 +60,55 @@ class SigninAPIView(APIView):
             return Response(
                 data={'message': 'Invalid email or password'}
             )
+
+
+class SignoutAPIView(APIView):
+    """
+    Signout API view.
+    """
+
+    def post(self, request):
+        logout(request)
+        return redirect('signin')
+
+
+class ProfileSettingsAPIView(APIView):
+    """
+    Profile setting API view.
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        profile = get_user_profile(
+            user=get_user_by_request(request=request),
+        )
+        return Response(
+            {
+                'user': profile.user.username,
+                'profile_image': profile.profile_image.url,
+                'profile_banner': profile.profile_banner.url,
+                'gender': profile.gender,
+                'description': profile.description,
+            }
+        )
+
+    def post(self, request):
+        profile = get_user_profile(
+            user=get_user_by_request(request=request),
+        )
+        serializer = ProfileSerializer(
+            instance=profile,
+            data=request.data,
+        )
+        if serializer.is_valid():
+            profile = serializer.save()
+            json = serializer.data
+            return Response(
+                json,
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )

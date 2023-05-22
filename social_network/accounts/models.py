@@ -76,15 +76,15 @@ def get_profile_banner_upload_path(instance: 'Profile', filename: str) -> str:
     return f'upload/users/{instance.user.email}/profile_banner/{filename}'
 
 
-class ProfileGenderChoices(models.TextChoices):
-    MALE = 'M', 'Male'
-    FEMALE = 'F', 'Female'
-
-
 class Profile(models.Model):
     """
     Profile for user.
     """
+
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
 
     user: User = models.OneToOneField(
         User,
@@ -108,12 +108,14 @@ class Profile(models.Model):
     gender = models.CharField(
         verbose_name='user gender',
         blank=True,
+        null=True,
         max_length=2,
-        choices=ProfileGenderChoices.choices,
+        choices=GENDER_CHOICES,
     )
     description = models.TextField(
         verbose_name='user profile description',
         blank=True,
+        null=True,
         max_length=500,
     )
 
