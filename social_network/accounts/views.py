@@ -1,16 +1,21 @@
+from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login, logout
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import redirect
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.contrib.auth import authenticate, login, logout
 
-from accounts.permissions import IsUserProfileOwner
-from accounts.serializers import SignupSerializer, ProfileSerializer
+from accounts.permissions import (
+    IsUserProfileOwner,
+    IsNotAuthenticated,
+)
+from accounts.serializers import (
+    SignupSerializer,
+    ProfileSerializer,
+)
 from accounts.services import (
     get_user_by_request,
     get_user_profile,
-    create_user_profile,
     get_user_by_username,
 )
 
@@ -24,7 +29,6 @@ class SignupAPIView(APIView):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            create_user_profile(user=user)
             if user:
                 json = serializer.data
                 return Response(
@@ -41,6 +45,8 @@ class SigninAPIView(APIView):
     """
     Signin API view.
     """
+
+    permission_classes = (IsNotAuthenticated,)
 
     def post(self, request):
         email = request.data.get('email')
@@ -132,7 +138,9 @@ class ProfileAPIView(APIView):
 
         return Response(
             {
-                'user': profile.user.username,
+                'username': profile.user.username,
+                'first_name': profile.user.first_name,
+                'last_name': profile.user.last_name,
                 'profile_image': profile.profile_image.url,
                 'profile_banner': profile.profile_banner.url,
                 'gender': profile.gender,

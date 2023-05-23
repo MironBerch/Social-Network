@@ -1,7 +1,6 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
 
 from accounts.models import User
 
@@ -28,10 +27,7 @@ class AccountsTest(APITestCase):
         }
 
         response = self.client.post(self.create_url, data)
-        user = User.objects.latest('id')
-        token = Token.objects.get(user=user)
 
-        self.assertEqual(response.data['token'], token.key)
         self.assertEqual(User.objects.count(), 2)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['username'], data['username'])

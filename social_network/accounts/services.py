@@ -29,14 +29,6 @@ def get_user_profile(user: User) -> Profile:
     return profile
 
 
-def create_user_profile(user: User) -> None:
-    """
-    Function for create user profile.
-    """
-
-    Profile.objects.create(user=user)
-
-
 def get_user_by_username(username: str) -> User:
     """
     Function which return user by username.

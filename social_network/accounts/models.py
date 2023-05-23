@@ -10,14 +10,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     Custom user model.
     """
 
+    profile: 'Profile'
+
     email = models.EmailField(
         _('email address'),
-        max_length=100,
+        max_length=50,
         unique=True,
     )
     username = models.CharField(
         _('username'),
-        max_length=100,
+        max_length=50,
         unique=True,
     )
     first_name = models.CharField(
@@ -27,6 +29,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(
         _('last name'),
         max_length=30,
+    )
+
+    last_login = models.DateTimeField(
+        verbose_name='last login',
+        auto_now=True,
     )
 
     is_active = models.BooleanField(
@@ -81,7 +88,7 @@ class Profile(models.Model):
     Profile for user.
     """
 
-    GENDER_CHOICES = (
+    GENDER_CHOICES: tuple[tuple] = (
         ('M', 'Male'),
         ('F', 'Female'),
     )
