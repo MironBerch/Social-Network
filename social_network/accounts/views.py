@@ -1,9 +1,8 @@
-from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 from accounts.permissions import (
     IsUserProfileOwner,
@@ -66,6 +65,7 @@ class SigninAPIView(APIView):
 
         else:
             return Response(
+                status=status.HTTP_401_UNAUTHORIZED,
                 data={'message': 'Invalid email or password'}
             )
 
@@ -75,11 +75,9 @@ class SignoutAPIView(APIView):
     Signout API view.
     """
 
-    permission_classes = (IsAuthenticated,)
-
     def post(self, request):
         logout(request)
-        return redirect('signin')
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProfileSettingsAPIView(APIView):

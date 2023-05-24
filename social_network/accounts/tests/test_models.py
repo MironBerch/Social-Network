@@ -11,6 +11,7 @@ from accounts.models import (
 
 
 class UserModelTests(TestCase):
+
     def setUp(self) -> None:
         User.objects.create_user(
             email="user1@gmail.com",
@@ -150,6 +151,7 @@ class UserModelTests(TestCase):
 
 
 class ProfileModelTests(TestCase):
+
     def setUp(self) -> None:
         User.objects.create_user(
             email='user1@gmail.com',

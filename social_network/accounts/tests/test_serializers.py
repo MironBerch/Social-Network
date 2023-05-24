@@ -5,7 +5,8 @@ from rest_framework.test import APITestCase
 from accounts.models import User
 
 
-class AccountsTest(APITestCase):
+class AccountsSerializerTests(APITestCase):
+
     def setUp(self):
         self.test_user = User.objects.create_user(
             email='email@gmail.com',
