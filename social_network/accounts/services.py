@@ -40,3 +40,51 @@ def get_user_by_username(username: str) -> User:
         raise AccountDoesNotExistException()
 
     return user
+
+
+def follow_user(self: User, user: User) -> None:
+    """Follow `user`."""
+    if user != self:
+        self.following.add(user)
+
+
+def get_followers(user: User):
+    """Get users that are following user."""
+    return (
+        user.followers.filter(is_active=True)
+        .select_related('profile')
+        .prefetch_related('followers')
+        .prefetch_related('following')
+    )
+
+
+def get_following(user: User):
+    """Get users that user is following."""
+    return (
+        user.following.filter(is_active=True)
+        .select_related('profile')
+        .prefetch_related('followers')
+        .prefetch_related('following')
+    )
+
+
+def unfollow(self: User, user: User) -> None:
+    """Unfollow `user`."""
+    self.following.remove(user)
+
+
+def get_user_profile_by_request(request: Request) -> Profile:
+    return (request.user.profile)
+
+
+def recommend_users(user: object, long: bool):
+    qs = (
+        User.objects.all().select_related('profile')
+        .exclude(followers=user)
+        .exclude(id=user.id)
+        .prefetch_related('following')
+        .prefetch_related('followers')
+    )
+    if long is False:
+        qs = qs[:7]
+    return qs

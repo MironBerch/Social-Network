@@ -4,8 +4,14 @@ from accounts.views import (
     SignupAPIView,
     SigninAPIView,
     SignoutAPIView,
-    ProfileSettingsAPIView,
-    ProfileAPIView,
+    EditPasswordAPIView,
+    EditProfileAPIView,
+    EditUserAPIView,
+    FollowersAPIView,
+    FollowingAPIView,
+    LongRecommendedUsersAPIView,
+    RecommendedUsersAPIView,
+    UserDetailAPIView,
 )
 
 
@@ -26,13 +32,43 @@ urlpatterns = [
         name='signout',
     ),
     path(
-        route='profile/<str:username>/',
-        view=ProfileAPIView.as_view(),
-        name='profile_view',
+        route='edit-password/',
+        view=EditPasswordAPIView.as_view(),
+        name='edit_password',
     ),
     path(
-        route='profile-settings/',
-        view=ProfileSettingsAPIView.as_view(),
-        name='profile_settings',
+        route='edit-profile/',
+        view=EditProfileAPIView.as_view(),
+        name='edit_profile',
+    ),
+    path(
+        route='edit-user/',
+        view=EditUserAPIView.as_view(),
+        name='edit_user',
+    ),
+    path(
+        route='long-recommended-users/',
+        view=LongRecommendedUsersAPIView.as_view(),
+        name='long_recommended_users',
+    ),
+    path(
+        route='recommended-users/',
+        view=RecommendedUsersAPIView.as_view(),
+        name='recommended_users',
+    ),
+    path(
+        route='<str:username>/',
+        view=UserDetailAPIView.as_view(),
+        name='user_detail',
+    ),
+    path(
+        route='<str:username>/following/',
+        view=FollowingAPIView.as_view(),
+        name='following',
+    ),
+    path(
+        route='<str:username>/followers/',
+        view=FollowersAPIView.as_view(),
+        name='followers',
     ),
 ]

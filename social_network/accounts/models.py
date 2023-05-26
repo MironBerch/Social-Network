@@ -31,6 +31,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=30,
     )
 
+    following = models.ManyToManyField(
+        'self',
+        related_name='followers',
+        symmetrical=False,
+    )
+
     last_login = models.DateTimeField(
         verbose_name='last login',
         auto_now=True,
