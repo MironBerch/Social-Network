@@ -84,6 +84,7 @@ def recommend_users(user: object, long: bool):
         .exclude(id=user.id)
         .prefetch_related('following')
         .prefetch_related('followers')
+        .order_by('?')
     )
     if long is False:
         qs = qs[:7]
