@@ -134,7 +134,7 @@ class EditUserAPIView(UpdateAPIView):
 
 class FollowersAPIView(ListAPIView):
     """
-    Get list of `user`'s followers. 
+    Get list of `user`'s followers.
     """
 
     pagination_class = UserPagination

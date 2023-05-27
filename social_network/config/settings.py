@@ -1,3 +1,4 @@
+from os import environ
 from pathlib import Path
 
 
@@ -57,8 +58,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': environ.get('POSTGRES_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': environ.get('POSTGRES_DB', BASE_DIR / 'db.sqlite3'),
+        'USER': environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': environ.get('POSTGRES_PORT', '5432'),
     }
 }
 
