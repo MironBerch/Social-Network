@@ -18,27 +18,33 @@ urlpatterns = [
     path(
         route='', 
         view=PostAPIView.as_view(), 
-        name='post'),
+        name='post',
+    ),
     path(
         route='repost/', 
         view=RepostAPIView.as_view(), 
-        name='repost'),
+        name='repost',
+    ),
     path(
         route='<int:pk>/', 
         view=PostDetailAPIView.as_view(), 
-        name='post_detail'),
+        name='post_detail',
+    ),
     path(
         route='<int:pk>/likes/', 
         view=LikesAPIView.as_view(), 
-        name='likes'),
+        name='likes',
+    ),
     path(
         route='<int:pk>/replies/', 
         view=PostRepliesAPIView.as_view(), 
-        name='replies'),
+        name='replies',
+    ),
     path(
         route='feed/', 
         view=FeedAPIView.as_view(), 
-        name='feed'),
+        name='feed',
+    ),
     path(
         route='profile/<str:slug>/likes/',
         view=ProfileLikesAPIView.as_view(),
