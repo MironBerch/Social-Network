@@ -5,6 +5,7 @@ from rest_framework.generics import UpdateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from core.mixins import PaginationMixin
 from accounts.permissions import (
     IsNotAuthenticated,
 )
@@ -144,19 +145,6 @@ class FollowersAPIView(ListAPIView):
     def get_queryset(self):
         user = get_user_by_username(username=self.kwargs.get('username'))
         return get_followers(user=user)
-
-
-class PaginationMixin:
-
-    pagination_class = None
-
-    @property
-    def paginator(self):
-        if not hasattr(self, '_paginator'):
-            if self.pagination_class is None:
-                raise NotImplementedError('pagination_class must be implemented')
-            self._paginator = self.pagination_class()
-        return self._paginator
 
 
 class FollowingAPIView(APIView, PaginationMixin):
