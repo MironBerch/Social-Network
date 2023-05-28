@@ -137,6 +137,17 @@ class UserSerializer(serializers.ModelSerializer):
         required=True,
         max_length=30,
     )
+    followers = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
+    following = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        read_only=True,
+    )
+    profile = ProfileSerializer(
+        read_only=True,
+    )
 
     class Meta:
         model = User
@@ -146,4 +157,7 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            'followers',
+            'following',
+            'profile',
         )
