@@ -9,6 +9,7 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('', include('posts.urls')),
     path('', include('search.urls')),
+    path('', include('notifications.urls')),
 ]
 
 if settings.DEBUG:
