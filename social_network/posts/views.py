@@ -35,6 +35,10 @@ from posts.services import (
     get_post_by_id,
 )
 from accounts.services import get_user_by_username
+from notifications.services import (
+    delete_post_notification,
+    create_post_notification,
+)
 
 
 class FeedAPIView(ListAPIView):
@@ -54,6 +58,12 @@ class LikesAPIView(APIView, PaginationMixin):
         post = self.get_object(pk)
         request_user = request.user
         post.liked.remove(request_user)
+        delete_post_notification(
+            from_user=request_user,
+            to_user=post.author,
+            type=2,
+            post=post,
+        )
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     def get(self, request, pk):
@@ -71,6 +81,13 @@ class LikesAPIView(APIView, PaginationMixin):
         request_user = request.user
         if request_user not in post.liked.all():
             post.liked.add(request_user)
+            if request_user != post.author:
+                create_post_notification(
+                    from_user=request_user,
+                    to_user=post.author,
+                    type=2,
+                    post=post,
+                )
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_200_OK)
 
@@ -89,6 +106,17 @@ class PostAPIView(CreateAPIView):
     serializer_class = PostSerializer
 
     def perform_create(self, serializer):
+        parent_post_id = self.request.data.get('parent_id')
+        if parent_post_id:
+            parent_post = get_post_by_id(id=parent_post_id)
+            request_user = self.request.user
+            if request_user != parent_post.author:
+                create_post_notification(
+                    from_user=request_user,
+                    to_user=parent_post.author,
+                    type=3,
+                    post=parent_post,
+                )
         serializer.save(author=self.request.user)
 
 
@@ -148,6 +176,13 @@ class RepostAPIView(CreateAPIView):
         parent_post_id = self.request.data.get('parent_id')
         parent_post = get_post_by_id(id=parent_post_id)
         request_user = self.request.user
+        if request_user != parent_post.author:
+            create_post_notification(
+                from_user=request_user,
+                to_user=parent_post.author,
+                type=1,
+                post=parent_post,
+            )
         serializer.save(author=request_user)
 
 

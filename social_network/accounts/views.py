@@ -26,7 +26,10 @@ from accounts.services import (
     recommend_users,
 )
 from accounts.pagination import UserPagination
-
+from notifications.services import (
+    delete_notification,
+    create_notification,
+)
 
 class SignupAPIView(APIView):
     """
@@ -158,6 +161,12 @@ class FollowingAPIView(APIView, PaginationMixin):
         user = self._get_object(username)
         request_user = get_user_by_request(request=request)
         unfollow(self=request_user, user=user)
+        if request_user != user:
+            delete_notification(
+                from_user=request_user,
+                to_user=user,
+                type=4,
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get(self, request, username):
@@ -171,6 +180,12 @@ class FollowingAPIView(APIView, PaginationMixin):
         user = self._get_object(username)
         request_user = get_user_by_request(request=request)
         follow_user(self=request_user, user=user)
+        if request_user != user:
+            create_notification(
+                from_user=request_user,
+                to_user=user,
+                type=4,
+            )
         return Response(status=status.HTTP_201_CREATED)
 
 
