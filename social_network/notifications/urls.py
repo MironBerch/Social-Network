@@ -9,17 +9,18 @@ from notifications.views import (
 
 urlpatterns = [
     path(
-        route='', 
-        view=NotificationsAPIView.as_view(), 
+        route='',
+        view=NotificationsAPIView.as_view(),
         name='notifications',
     ),
     path(
-        route='<int:pk>/', 
-        view=RemoveNotificationAPIView.as_view(), 
+        route='<int:pk>/',
+        view=RemoveNotificationAPIView.as_view(),
         name='remove_notification',
     ),
     path(
         route='unread-count/', 
-        view=UnreadNotificationCountAPIView.as_view(), name='unread_count',
+        view=UnreadNotificationCountAPIView.as_view(),
+        name='unread_count',
     ),
 ]

@@ -16,33 +16,33 @@ from posts.views import (
 
 urlpatterns = [
     path(
-        route='', 
-        view=PostAPIView.as_view(), 
+        route='',
+        view=PostAPIView.as_view(),
         name='post',
     ),
     path(
-        route='repost/', 
-        view=RepostAPIView.as_view(), 
+        route='repost/',
+        view=RepostAPIView.as_view(),
         name='repost',
     ),
     path(
-        route='<int:pk>/', 
-        view=PostDetailAPIView.as_view(), 
+        route='<int:pk>/',
+        view=PostDetailAPIView.as_view(),
         name='post_detail',
     ),
     path(
-        route='<int:pk>/likes/', 
-        view=LikesAPIView.as_view(), 
+        route='<int:pk>/likes/',
+        view=LikesAPIView.as_view(),
         name='likes',
     ),
     path(
-        route='<int:pk>/replies/', 
-        view=PostRepliesAPIView.as_view(), 
+        route='<int:pk>/replies/',
+        view=PostRepliesAPIView.as_view(),
         name='replies',
     ),
     path(
-        route='feed/', 
-        view=FeedAPIView.as_view(), 
+        route='feed/',
+        view=FeedAPIView.as_view(),
         name='feed',
     ),
     path(
