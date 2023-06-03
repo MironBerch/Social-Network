@@ -77,4 +77,4 @@ def delete_post_notification(
         to_user=to_user,
         type=type,
         post=post,
-    ).delete() 
+    ).delete()
