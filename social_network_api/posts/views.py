@@ -1,22 +1,19 @@
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (
-    ListAPIView, 
-    CreateAPIView, 
+    ListAPIView,
+    CreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from core.mixins import PaginationMixin
 from core.permissions import IsOwnerOrReadOnly
 from posts.serializers import UserSerializer
-from posts.models import Post
 from posts.pagination import (
-    PostPagination, 
-    ProfileLikesPagination, 
+    PostPagination,
+    ProfileLikesPagination,
     ReplyPagination,
 )
 from posts.serializers import (
@@ -48,7 +45,7 @@ class FeedAPIView(ListAPIView):
 
     def get_queryset(self):
         return get_feed(self.request.user)
-    
+
 
 class LikesAPIView(APIView, PaginationMixin):
     pagination_class = ReplyPagination
@@ -65,17 +62,17 @@ class LikesAPIView(APIView, PaginationMixin):
             post=post,
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
     def get(self, request, pk):
         post = self.get_object(pk)
         users = post.liked.all()
         paginated = self.paginator.paginate_queryset(users, self.request)
         serializer = UserSerializer(paginated, many=True)
         return self.paginator.get_paginated_response(serializer.data)
-    
+
     def get_object(self, pk):
         return get_post_by_pk(pk)
-    
+
     def post(self, request, pk):
         post = self.get_object(pk)
         request_user = request.user

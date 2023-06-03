@@ -19,7 +19,7 @@ urlpatterns = [
         name='remove_notification',
     ),
     path(
-        route='unread-count/', 
+        route='unread-count/',
         view=UnreadNotificationCountAPIView.as_view(),
         name='unread_count',
     ),

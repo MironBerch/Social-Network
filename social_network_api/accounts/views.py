@@ -31,6 +31,7 @@ from notifications.services import (
     create_notification,
 )
 
+
 class SignupAPIView(APIView):
     """
     Signup API view.

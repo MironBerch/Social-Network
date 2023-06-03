@@ -85,7 +85,7 @@ class AccountsUrlsTests(SimpleTestCase):
         """Test that FollowingAPIView url works correctly."""
         url = reverse('following', args=['username', ])
         self.assertEquals(
-            resolve(url).func.view_class,FollowingAPIView,
+            resolve(url).func.view_class, FollowingAPIView,
         )
 
     def test_followers_api_view_is_resolved(self):

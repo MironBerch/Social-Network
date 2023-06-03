@@ -142,7 +142,7 @@ class UserSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     following = serializers.PrimaryKeyRelatedField(
-        many=True, 
+        many=True,
         read_only=True,
     )
     profile = ProfileSerializer(

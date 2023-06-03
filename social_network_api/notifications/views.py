@@ -24,7 +24,6 @@ class UnreadNotificationCountAPIView(APIView):
         return Response(count, status=status.HTTP_200_OK)
 
 
-
 class NotificationsAPIView(ListAPIView):
 
     pagination_class = NotificationPagination

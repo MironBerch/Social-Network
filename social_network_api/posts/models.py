@@ -39,9 +39,11 @@ class Post(models.Model):
 
     objects = PostManager.as_manager()
 
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'post'
+        verbose_name_plural = 'posts'
+
     def __str__(self):
         ellipsis = '...' if len(self.content) > 100 else ''
         return f'{self.content[:100]}{ellipsis}'
-
-    class Meta:
-        ordering = ['-created_at']

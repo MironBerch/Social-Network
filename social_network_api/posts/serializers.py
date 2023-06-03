@@ -46,7 +46,7 @@ class BasePostSerializer(serializers.ModelSerializer):
     def get_is_author(self, obj):
         request = self.context.get('request')
         return obj.author == request.user
-    
+
 
 class PostSerializer(BasePostSerializer):
     reply_ids = serializers.ListField(read_only=True)

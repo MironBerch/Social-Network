@@ -5,7 +5,7 @@ from posts.models import Post
 
 
 class Notification(models.Model):
-    
+
     class NotificationTypes(models.IntegerChoices):
         REPOST = 1
         LIKE_POST = 2
@@ -42,6 +42,8 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        verbose_name = 'notification'
+        verbose_name_plural = 'notifications'
 
     def __str__(self):
         return f'{self.from_user} => {self.to_user}: {self.type}'
