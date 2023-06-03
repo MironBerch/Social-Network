@@ -109,6 +109,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = 'static/'
+if DEBUG:
+    STATICFILES_DIRS = [BASE_DIR / 'static', ]
+else:
+    STATIC_ROOT = BASE_DIR / 'static'
 
 # Default primary key field type
 
