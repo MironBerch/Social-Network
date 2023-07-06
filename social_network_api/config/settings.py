@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'drf_spectacular',
     'corsheaders',
 
     'accounts',
@@ -100,7 +101,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-
 # Media files
 
 MEDIA_URL = '/media/'
@@ -122,3 +122,18 @@ AUTH_USER_MODEL = 'accounts.User'
 # CORS headers
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Django REST Framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# Schema settings
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Social-Network',
+    'DESCRIPTION': 'Social-Network created using django-rest-framework.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
