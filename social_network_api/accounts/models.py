@@ -46,6 +46,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=now,
     )
 
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
     is_active = models.BooleanField(
         _('active'),
         default=True,
