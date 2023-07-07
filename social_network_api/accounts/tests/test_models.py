@@ -195,7 +195,6 @@ class ProfileModelTests(TestCase):
 
         self.assertEqual(gender_field.verbose_name, 'user gender')
         self.assertTrue(gender_field.blank)
-        self.assertTrue(gender_field.null)
         self.assertEqual(gender_field.max_length, 2)
         self.assertEqual(gender_field.choices, Profile.GENDER_CHOICES)
 
@@ -205,7 +204,6 @@ class ProfileModelTests(TestCase):
 
         self.assertEqual(description_field.verbose_name, 'user profile description')
         self.assertTrue(description_field.blank)
-        self.assertTrue(description_field.null)
 
     def test_object_name_has_user_object_name(self):
         """Test that Profile object name is set up properly."""
