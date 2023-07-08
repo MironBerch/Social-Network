@@ -11,7 +11,11 @@ class SearchAPIView(ListAPIView):
     filter_backends = [SearchFilter]
     pagination_class = SearchPagination
     permission_classes = (IsAuthenticated,)
-    search_fields = ('username', 'name',)
+    search_fields = (
+        'username',
+        'first_name',
+        'last_name',
+    )
     serializer_class = UserSerializer
 
     def get_queryset(self):
