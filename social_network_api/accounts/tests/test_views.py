@@ -1,5 +1,6 @@
 from django.urls import reverse
 from rest_framework import status
+from django.contrib.auth import authenticate
 from rest_framework.test import APITestCase
 
 from accounts.models import User
@@ -60,3 +61,212 @@ class SignoutAPIViewTests(APITestCase):
         """Test that SignoutAPIView return correct status code."""
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class Mixin:
+    @classmethod
+    def setUp(cls):
+        cls.user1 = User.objects.create_user(
+            email='user@gmail.com',
+            username='JohnDoe',
+            first_name='John',
+            last_name='Doe',
+            password='password',
+        )
+        cls.user2 = User.objects.create_user(
+            email='user2@gmail.com',
+            username='JohnDoe2',
+            first_name='John2',
+            last_name='Doe2',
+            password='password',
+        )
+
+    def authenticate(self):
+        self.client.force_authenticate(user=self.user1)
+
+
+class UserDetailViewTestCase(Mixin, APITestCase):
+    def test_unauthorized_status_code(self):
+        url = reverse("user_detail", kwargs={"username": self.user1.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authorized_status_code(self):
+        self.authenticate()
+        url = reverse("user_detail", kwargs={"username": self.user1.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_username_does_not_exist(self):
+        self.authenticate()
+        url = reverse("user_detail", kwargs={"username": "bad-username"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class EditProfileViewTestCase(Mixin, APITestCase):
+    url = reverse("edit_profile")
+
+    def test_unauthorized_status_code(self):
+        response = self.client.patch(self.url, {"website": "testing.com"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_edit_profile(self):
+        self.authenticate()
+        response = self.client.patch(self.url, {"description": "testing"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Make sure profile was updated.
+        self.assertEqual(self.user1.profile.description, "testing")
+
+
+class EditUserViewTestCase(Mixin, APITestCase):
+    url = reverse("edit_user")
+
+    def test_unauthorized_status_code(self):
+        response = self.client.patch(self.url, {"first_name": self.user1.first_name})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authorized_status_code(self):
+        self.authenticate()
+        response = self.client.patch(self.url, {"first_name": "new-first-name"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Make sure user's name was updated.
+        self.assertEqual(self.user1.first_name, "new-first-name")
+
+
+class EditPasswordViewTestCase(Mixin, APITestCase):
+    url = reverse("edit_password")
+
+    def test_unauthorized_status_code(self):
+        response = self.client.put(self.url, {"password": "some-password"})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_edit_password(self):
+        self.authenticate()
+        new_password = "new-password"
+        data = {
+            "current_password": self.user1_password,
+            "password": new_password,
+            "password2": new_password,
+        }
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Make sure new credentials work.
+        auth = authenticate(login=self.user1.username, password=new_password)
+        self.assertIsNotNone(auth)
+
+
+class FollowingViewTestCase(Mixin, APITestCase):
+    def test_unauthorized_status_code(self):
+        url = reverse("following", kwargs={"username": self.user1.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_username_does_not_exist(self):
+        self.authenticate()
+        url = reverse("following", kwargs={"username": "bad-username"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_following(self):
+        self.authenticate()
+        url = reverse("following", kwargs={"username": self.user1.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Make sure the response data is paginated.
+        self.assertIsInstance(response.data.get("results"), list)
+
+    def test_follow(self):
+        self.authenticate()
+        url = reverse("following", kwargs={"username": self.user2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Make sure user1 is following user2.
+        following_count = self.user1.following.count()
+        self.assertEqual(following_count, 1)
+
+        # Make sure user2 is notified.
+        notification_count = self.user2.notifications.count()
+        self.assertEqual(notification_count, 1)
+
+    def test_unfollow(self):
+        self.authenticate()
+        url = reverse("following", kwargs={"username": self.user2.username})
+
+        # Follow user so a notification is created.
+        self.client.post(url)
+
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # Make sure user1 is no longer following user2.
+        following_count = self.user1.following.count()
+        self.assertEqual(following_count, 0)
+
+        # Make sure user2's notification is removed.
+        notification_count = self.user2.notifications.count()
+        self.assertEqual(notification_count, 0)
+
+
+class FollowersViewTestCase(Mixin, APITestCase):
+    def test_unauthorized_status_code(self):
+        url = reverse("followers", kwargs={"username": self.user1.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_followers(self):
+        self.authenticate()
+        url = reverse("followers", kwargs={"username": self.user1.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Make sure the response data is paginated.
+        self.assertIsInstance(response.data.get("results"), list)
+
+    def test_username_does_not_exist(self):
+        self.authenticate()
+        url = reverse("followers", kwargs={"username": "bad-username"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class RecommendedUsersViewTestCase(Mixin, APITestCase):
+    url = reverse("recommended_users")
+
+    def test_unauthorized_status_code(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_recommeneded_users(self):
+        self.authenticate()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Make sure the correct results are returned.
+        recommended_user = response.data[0].get("username")
+        self.assertEqual(recommended_user, self.user2.username)
+
+
+class LongRecommendedUsersViewTestCase(Mixin, APITestCase):
+    url = reverse("long_recommended_users")
+
+    def test_unauthorized_status_code(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_long_recommended_users(self):
+        self.authenticate()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Make sure the response data is paginated.
+        self.assertIsInstance(response.data.get("results"), list)
+
+        # Make sure the correct results are returned.
+        recommended_user = response.data.get("results")[0].get("username")
+        self.assertEqual(recommended_user, self.user2.username)
