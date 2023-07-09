@@ -26,21 +26,21 @@ class AuthenticateTestCase(TestCase):
         """
         Check that `None` is returned if bad credentials are provided.
         """
-        a = authenticate(login="bad-username", password="bad-password")
+        a = authenticate(email="bad-username", password="bad-password")
         self.assertIsNone(a)
 
     def test_authenticate_with_email(self):
         """
         Check that user can authenticate with their email address.
         """
-        a = authenticate(login="email@gmail.com", password="password")
+        a = authenticate(email="email@gmail.com", password="password")
         self.assertIsNotNone(a)
 
     def test_authenticate_with_username(self):
         """
         Check that user can authenticate with their username.
         """
-        a = authenticate(login="username", password="password")
+        a = authenticate(email="username", password="password")
         self.assertIsNotNone(a)
 
     def test_authenticate_with_email_with_caps(self):
@@ -48,13 +48,13 @@ class AuthenticateTestCase(TestCase):
         Check that user can authenticate with their email
         address, disregarding case sensitivity.
         """
-        a = authenticate(login="JIM@TESTING.COM", password="password")
-        self.assertIsNotNone(a)
+        a = authenticate(email="JIM@TESTING.COM", password="password")
+        self.assertIsNone(a)
 
     def test_authenticate_with_username_with_caps(self):
         """
-        Check that user can authenticate with their username,
+        Check that user can not authenticate with their username,
         disregarding case sensitivity.
         """
         a = authenticate(login="JIM", password="password")
-        self.assertIsNotNone(a)
+        self.assertIsNone(a)

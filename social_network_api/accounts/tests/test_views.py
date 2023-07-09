@@ -147,7 +147,7 @@ class EditPasswordViewTestCase(Mixin, APITestCase):
         self.authenticate()
         new_password = "new-password"
         data = {
-            "current_password": self.user1_password,
+            "current_password": self.user1.password,
             "password": new_password,
             "password2": new_password,
         }
@@ -186,11 +186,9 @@ class FollowingViewTestCase(Mixin, APITestCase):
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # Make sure user1 is following user2.
         following_count = self.user1.following.count()
         self.assertEqual(following_count, 1)
 
-        # Make sure user2 is notified.
         notification_count = self.user2.notifications.count()
         self.assertEqual(notification_count, 1)
 
@@ -198,17 +196,14 @@ class FollowingViewTestCase(Mixin, APITestCase):
         self.authenticate()
         url = reverse("following", kwargs={"username": self.user2.username})
 
-        # Follow user so a notification is created.
         self.client.post(url)
 
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        # Make sure user1 is no longer following user2.
         following_count = self.user1.following.count()
         self.assertEqual(following_count, 0)
 
-        # Make sure user2's notification is removed.
         notification_count = self.user2.notifications.count()
         self.assertEqual(notification_count, 0)
 
@@ -225,7 +220,6 @@ class FollowersViewTestCase(Mixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Make sure the response data is paginated.
         self.assertIsInstance(response.data.get("results"), list)
 
     def test_username_does_not_exist(self):
@@ -247,7 +241,6 @@ class RecommendedUsersViewTestCase(Mixin, APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Make sure the correct results are returned.
         recommended_user = response.data[0].get("username")
         self.assertEqual(recommended_user, self.user2.username)
 
@@ -264,9 +257,7 @@ class LongRecommendedUsersViewTestCase(Mixin, APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Make sure the response data is paginated.
         self.assertIsInstance(response.data.get("results"), list)
 
-        # Make sure the correct results are returned.
         recommended_user = response.data.get("results")[0].get("username")
         self.assertEqual(recommended_user, self.user2.username)
