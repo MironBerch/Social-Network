@@ -12,7 +12,7 @@ def get_post_by_pk(pk: int):
     return get_object_or_404(Post, pk=pk, is_active=True)
 
 
-def get_recommend_posts(user: User, long: bool):
+def get_recommend_posts(user: User, long: bool = False):
     return Post.objects.recommend_posts(user=user, long=long)
 
 

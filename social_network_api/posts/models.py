@@ -47,3 +47,10 @@ class Post(models.Model):
     def __str__(self):
         ellipsis = '...' if len(self.content) > 100 else ''
         return f'{self.content[:100]}{ellipsis}'
+
+    def get_replies(self):
+        """Get a post's replies."""
+        return self.alt.filter(
+            is_active=True,
+            is_reply=True,
+        ).order_by('created_at')

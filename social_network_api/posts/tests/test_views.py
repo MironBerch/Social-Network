@@ -34,15 +34,12 @@ class Mixin:
             password='password',
         )
 
-    def authenticate(self):
-        self.client.force_authenticate(user=self.user1)
-
 
 class BadPKMixin:
     endpoint = None
 
     def test_pk_does_not_exist(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         url = reverse(self.endpoint, kwargs={'pk': 0})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -52,8 +49,8 @@ class BadSlugMixin:
     endpoint = None
 
     def test_slug_does_not_exist(self):
-        self.authenticate()
-        url = reverse(self.endpoint, kwargs={'slug': 'bad-slug'})
+        self.client.force_authenticate(user=self.user1)
+        url = reverse(self.endpoint, kwargs={'username': 'bad-slug'})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -66,7 +63,7 @@ class FeedViewTestCase(Mixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_feed(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         create_post(self.user1)
         create_post(self.user2)
         create_post(self.user3)
@@ -86,15 +83,15 @@ class ProfilePostsViewTestCase(Mixin, BadSlugMixin, APITestCase):
     endpoint = 'profile_posts'
 
     def test_unauthorized_status_code(self):
-        url = reverse(self.endpoint, kwargs={'slug': self.user1.username})
+        url = reverse(self.endpoint, kwargs={'username': self.user1.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_profile_posts(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         create_post(self.user1)
         create_post(self.user2)
-        url = reverse(self.endpoint, kwargs={'slug': self.user1.username})
+        url = reverse(self.endpoint, kwargs={'username': self.user1.username})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -109,13 +106,13 @@ class ProfileLikesViewTestCase(Mixin, BadSlugMixin, APITestCase):
     endpoint = 'profile_likes'
 
     def test_unauthorized_status_code(self):
-        url = reverse(self.endpoint, kwargs={'slug': self.user1.username})
+        url = reverse(self.endpoint, kwargs={'username': self.user1.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_profile_likes(self):
-        self.authenticate()
-        url = reverse(self.endpoint, kwargs={'slug': self.user1.username})
+        self.client.force_authenticate(user=self.user1)
+        url = reverse(self.endpoint, kwargs={'username': self.user1.username})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -136,7 +133,7 @@ class PostViewTestCase(Mixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_post(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         data = {
             'content': 'testing',
             'is_reply': False,
@@ -149,7 +146,7 @@ class PostViewTestCase(Mixin, APITestCase):
         self.assertEqual(post_count, 1)
 
     def test_create_reply(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user2)
         data = {
             'content': 'testing',
@@ -175,7 +172,7 @@ class RepostViewTestCase(Mixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_repost(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user2)
         data = {
             'content': 'testing',
@@ -202,7 +199,7 @@ class PostDetailViewTestCase(Mixin, BadPKMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_get_post_detail(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user1)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})
         response = self.client.get(url)
@@ -210,31 +207,26 @@ class PostDetailViewTestCase(Mixin, BadPKMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_must_be_owner(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user2)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})
         data = {'content': 'testing'}
         response = self.client.patch(url, data)
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_post_detail(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user1)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})
-        new_content = 'testing'
-        data = {
-            'content': new_content,
-        }
+        data = {'content': 'testing'}
         response = self.client.patch(url, data)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         updated_content = self.user1.posts.get(pk=p.pk).content
-        self.assertEqual(updated_content, new_content)
+        self.assertEqual(updated_content, 'testing')
 
     def test_delete_post_detail(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user1)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})
         response = self.client.delete(url)
@@ -254,7 +246,7 @@ class LikesViewTestCase(Mixin, BadPKMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_get_likes(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user1)
         p.liked.add(self.user1)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})
@@ -268,7 +260,7 @@ class LikesViewTestCase(Mixin, BadPKMixin, APITestCase):
         self.assertEqual(likes_count, 1)
 
     def test_add_like(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user1)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})
         response = self.client.post(url)
@@ -279,7 +271,7 @@ class LikesViewTestCase(Mixin, BadPKMixin, APITestCase):
         self.assertEqual(likes_count, 1)
 
     def test_delete_like(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user1)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})
         response = self.client.delete(url)
@@ -298,7 +290,7 @@ class RecommendPostsViewTestCase(Mixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_recommended_posts(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         create_post(self.user2)
         response = self.client.get(self.url)
 
@@ -316,7 +308,7 @@ class LongRecommendedPostsViewTestCase(Mixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_long_recommended_posts(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         create_post(self.user2)
         response = self.client.get(self.url)
 
@@ -339,7 +331,7 @@ class PostRepliesTestCase(Mixin, BadPKMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_get_post_replies(self):
-        self.authenticate()
+        self.client.force_authenticate(user=self.user1)
         p = create_post(self.user1)
         create_post(self.user1, is_reply=True, parent=p)
         url = reverse(self.endpoint, kwargs={'pk': p.pk})

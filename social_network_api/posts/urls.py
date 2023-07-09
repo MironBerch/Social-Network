@@ -46,12 +46,12 @@ urlpatterns = [
         name='feed',
     ),
     path(
-        route='profile/<str:slug>/likes/',
+        route='profile/<str:username>/likes/',
         view=ProfileLikesAPIView.as_view(),
         name='profile_likes',
     ),
     path(
-        route='profile/<str:slug>/posts/',
+        route='profile/<str:username>/posts/',
         view=ProfilePostsAPIView.as_view(),
         name='profile_posts',
     ),
