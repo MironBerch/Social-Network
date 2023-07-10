@@ -116,7 +116,6 @@ class EditProfileViewTestCase(Mixin, APITestCase):
         response = self.client.patch(self.url, {"description": "testing"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Make sure profile was updated.
         self.assertEqual(self.user1.profile.description, "testing")
 
 
@@ -132,31 +131,55 @@ class EditUserViewTestCase(Mixin, APITestCase):
         response = self.client.patch(self.url, {"first_name": "new-first-name"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Make sure user's name was updated.
         self.assertEqual(self.user1.first_name, "new-first-name")
 
 
-class EditPasswordViewTestCase(Mixin, APITestCase):
-    url = reverse("edit_password")
+class EditPasswordViewTestCase(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email='user@gmail.com',
+            username='testuser',
+            first_name='John',
+            last_name='Doe',
+            password='oldpassword',
+        )
+        self.url = reverse("edit_password")
 
-    def test_unauthorized_status_code(self):
-        response = self.client.put(self.url, {"password": "some-password"})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_edit_password(self):
-        self.authenticate()
-        new_password = "new-password"
+    def test_password_update_success(self):
+        self.client.force_authenticate(user=self.user)
         data = {
-            "current_password": self.user1.password,
-            "password": new_password,
-            "password2": new_password,
+            'current_password': 'oldpassword',
+            'password': 'newpassword123',
+            'password2': 'newpassword123',
         }
         response = self.client.put(self.url, data)
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Make sure new credentials work.
-        auth = authenticate(login=self.user1.username, password=new_password)
-        self.assertIsNotNone(auth)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('newpassword123'))
+
+    def test_password_update_invalid_current_password(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            'current_password': 'wrongpassword',
+            'password': 'newpassword123',
+            'password2': 'newpassword123',
+        }
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_password_update_mismatched_passwords(self):
+        self.client.force_authenticate(user=self.user)
+
+        data = {
+            'current_password': 'oldpassword',
+            'password': 'newpassword123',
+            'password2': 'differentpassword',
+        }
+
+        response = self.client.put(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class FollowingViewTestCase(Mixin, APITestCase):

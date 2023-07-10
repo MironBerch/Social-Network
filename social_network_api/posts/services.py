@@ -9,7 +9,11 @@ def get_feed(user: User):
 
 
 def get_post_by_pk(pk: int):
-    return get_object_or_404(Post, pk=pk, is_active=True)
+    return (
+        Post.objects.filter(
+            pk=pk,
+        ).active()
+    )
 
 
 def get_recommend_posts(user: User, long: bool = False):
@@ -17,7 +21,12 @@ def get_recommend_posts(user: User, long: bool = False):
 
 
 def get_user_post_by_pk(user: User, pk: int):
-    return get_object_or_404(Post, author=user, pk=pk, is_active=True)
+    return get_object_or_404(
+        Post,
+        author=user,
+        pk=pk,
+        is_active=True,
+    )
 
 
 def get_liked_posts(user: User):

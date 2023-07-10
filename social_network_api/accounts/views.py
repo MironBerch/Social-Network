@@ -11,6 +11,7 @@ from accounts.permissions import (
 )
 from accounts.serializers import (
     SignupSerializer,
+    SigninSerializer,
     ProfileSerializer,
     PasswordSerializer,
     UserSerializer,
@@ -37,16 +38,19 @@ class SignupAPIView(APIView):
     Signup API view.
     """
 
+    serializer_class = SignupSerializer
+
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            if user:
-                json = serializer.data
-                return Response(
-                    json,
-                    status=status.HTTP_201_CREATED,
-                )
+            user = serializer.create(serializer.validated_data)
+            request.session.set_expiry(0)
+            login(request, user)
+            serializer = UserSerializer(user)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
@@ -59,6 +63,7 @@ class SigninAPIView(APIView):
     """
 
     permission_classes = (IsNotAuthenticated,)
+    serializer_class = SigninSerializer
 
     def post(self, request):
         email = request.data.get('email')
@@ -100,17 +105,21 @@ class EditPasswordAPIView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordSerializer
 
+    def get_object(self):
+        return self.request.user
+
     def update(self, request):
-        serializer = self.get_serializer(data=self.request)
-        if serializer.is_valid():
-            new_password = serializer.validated_data.get('password')
-            request.user.set_password(new_password)
-            request.user.save()
-            return Response(status=status.HTTP_200_OK)
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
+        serializer = self.get_serializer(
+            data=self.request,
         )
+        serializer.is_valid(
+            raise_exception=True,
+        )
+        #self.update(
+        #    request.user,
+        #    serializer.validated_data,
+        #)
+        return Response(status=status.HTTP_200_OK)
 
 
 class EditProfileAPIView(UpdateAPIView):

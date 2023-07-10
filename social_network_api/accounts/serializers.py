@@ -52,6 +52,23 @@ class SignupSerializer(serializers.ModelSerializer):
         )
 
 
+class SigninSerializer(serializers.Serializer):
+    """
+    Signin API view serializer.
+
+    :param email: Username or email address.
+    :param password: Password.
+    """
+
+    email = serializers.CharField(
+        required=True,
+    )
+    password = serializers.CharField(
+        min_length=8,
+        write_only=True,
+    )
+
+
 class ProfileSerializer(serializers.ModelSerializer):
     """
     User profile serializer.
@@ -72,7 +89,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
 
 
-class PasswordSerializer(serializers.ModelSerializer):
+class PasswordSerializer(serializers.Serializer):
     """
     Reset password serializer.
     """
@@ -90,30 +107,23 @@ class PasswordSerializer(serializers.ModelSerializer):
         write_only=True,
     )
 
-    class Meta:
-        model = User
-        fields = [
-            'current_password',
-            'password',
-            'password2',
-        ]
+    def validate_current_password(self, value):
+        user = self.context('request').user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Invalid current password.')
+        return value
 
-    def validate(self, data):
-        password = data.get('password')
-        password2 = data.get('password2')
-        if (
-            password and password2 and
-            password != password2
-        ):
-            raise serializers.ValidationError({'password2': 'Passwords do not match.'})
-        return data
+    def validate(self, attrs):
+        new_password = attrs.get('password')
+        confirm_password = attrs.get('password2')
+        if new_password != confirm_password:
+            raise serializers.ValidationError('New passwords do not match.')
+        return attrs
 
-    def validate_current_password(self, data):
-        request = self.context.get('request')
-        user = request.user
-        if not user.check_password(data):
-            raise serializers.ValidationError('Incorrect password')
-        return data
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['password'])
+        instance.save()
+        return instance
 
 
 class UserSerializer(serializers.ModelSerializer):
