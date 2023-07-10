@@ -37,7 +37,7 @@ def create_notification(
         from_user=from_user,
         to_user=to_user,
         type=type,
-    ).delete()
+    )
 
 
 def delete_notification(
@@ -63,7 +63,7 @@ def create_post_notification(
         to_user=to_user,
         type=type,
         post=post,
-    ).delete()
+    )
 
 
 def delete_post_notification(
