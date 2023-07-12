@@ -24,12 +24,13 @@ from posts.serializers import (
 )
 from posts.services import (
     get_feed,
-    get_post_by_pk,
+    get_active_posts_by_pk,
     get_recommend_posts,
     get_user_post_by_pk,
     get_liked_posts,
     get_user_profile_posts,
     get_post_by_id,
+    get_post,
 )
 from accounts.services import get_user_by_username
 from notifications.services import (
@@ -71,7 +72,7 @@ class LikesAPIView(APIView, PaginationMixin):
         return self.paginator.get_paginated_response(serializer.data)
 
     def get_object(self, pk):
-        return get_post_by_pk(pk)
+        return get_post(pk)
 
     def post(self, request, pk):
         post = self.get_object(pk)
@@ -129,7 +130,7 @@ class PostDetailAPIView(RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset(self):
-        return get_post_by_pk(pk=self.kwargs.get('pk'))
+        return get_active_posts_by_pk(pk=self.kwargs.get('pk'))
 
 
 class PostRepliesAPIView(ListAPIView):
@@ -139,7 +140,7 @@ class PostRepliesAPIView(ListAPIView):
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
-        post = get_post_by_pk(pk=pk)
+        post = get_post(pk=pk)
         return post.get_replies()
 
 
