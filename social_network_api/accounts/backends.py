@@ -18,8 +18,8 @@ class AuthenticationBackend(ModelBackend):
         """Override default authentication to allow for both email and
         username login.
 
-        :param email: Username or email address.
-        :param password: Password.
+        param email: Username or email address.
+        param password: Password.
         """
         try:
             user = User.objects.get(

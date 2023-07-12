@@ -107,12 +107,6 @@ class PasswordSerializer(serializers.Serializer):
         write_only=True,
     )
 
-    def validate_current_password(self, value):
-        user = self.context('request').user
-        if not user.check_password(value):
-            raise serializers.ValidationError('Invalid current password.')
-        return value
-
     def validate(self, attrs):
         new_password = attrs.get('password')
         confirm_password = attrs.get('password2')

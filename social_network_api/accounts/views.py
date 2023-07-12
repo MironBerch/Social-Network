@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import UpdateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
+from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
 
 from core.mixins import PaginationMixin
@@ -109,17 +110,35 @@ class EditPasswordAPIView(UpdateAPIView):
         return self.request.user
 
     def update(self, request):
-        serializer = self.get_serializer(
-            data=self.request,
+        current_password = request.data.get('current_password')
+        password = request.data.get('password')
+        password2 = request.data.get('password2')
+        if not current_password or not password or not password2:
+            return Response(
+                {'message': 'Please provide all the required fields.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+        if not check_password(current_password, user.password):
+            return Response(
+                {'message': 'Invalid current password.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if password != password2:
+            return Response(
+                {'message': 'New passwords do not match.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(password)
+        user.save()
+
+        return Response(
+            {'message': 'Password updated successfully.'},
+            status=status.HTTP_200_OK,
         )
-        serializer.is_valid(
-            raise_exception=True,
-        )
-        #self.update(
-        #    request.user,
-        #    serializer.validated_data,
-        #)
-        return Response(status=status.HTTP_200_OK)
 
 
 class EditProfileAPIView(UpdateAPIView):
