@@ -54,3 +54,10 @@ class Post(models.Model):
             is_active=True,
             is_reply=True,
         ).order_by('created_at')
+
+    def get_reposts(self):
+        """Get a post's reposts."""
+        return self.alt.filter(
+            is_active=True,
+            is_reply=False,
+        ).order_by('created_at')
