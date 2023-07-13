@@ -25,21 +25,21 @@ class NotificationMixin:
         )
 
     def create_notification(self):
-        post_url = reverse("post")
+        post_url = reverse('post')
 
         self.client.force_authenticate(user=self.user1)
         post_data = {
-            "content": "testing",
-            "is_reply": False,
+            'content': 'testing',
+            'is_reply': False,
         }
         self.client.post(post_url, post_data)
 
         self.client.force_authenticate(user=self.user2)
-        p = Post.objects.get(content="testing")
+        p = Post.objects.get(content='testing')
         reply_data = {
-            "content": "testing",
-            "is_reply": True,
-            "parent_id": p.id,
+            'content': 'testing',
+            'is_reply': True,
+            'parent_id': p.id,
         }
         self.client.post(post_url, reply_data)
 
@@ -47,7 +47,7 @@ class NotificationMixin:
 
 
 class UnreadNotificationCountViewTestCase(NotificationMixin, APITestCase):
-    url = reverse("unread_count")
+    url = reverse('unread_count')
 
     def test_unauthorized_status_code(self):
         response = self.client.get(self.url)
@@ -64,7 +64,7 @@ class UnreadNotificationCountViewTestCase(NotificationMixin, APITestCase):
 
 
 class NoticationsViewTestCase(NotificationMixin, APITestCase):
-    url = reverse("notifications")
+    url = reverse('notifications')
 
     def test_unauthorized_status_code(self):
         response = self.client.get(self.url)
@@ -76,22 +76,22 @@ class NoticationsViewTestCase(NotificationMixin, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        notification_count = len(response.data.get("results"))
+        notification_count = len(response.data.get('results'))
         self.assertEqual(notification_count, 1)
 
 
 class RemoveNotificationTestCase(NotificationMixin, APITestCase):
-    endpoint = "remove_notification"
+    endpoint = 'remove_notification'
 
     def test_unauthorized_status_code(self):
-        url = reverse(self.endpoint, kwargs={"pk": 0})
+        url = reverse(self.endpoint, kwargs={'pk': 0})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_remove_notification(self):
         self.create_notification()
         notification = self.user1.notifications.first()
-        url = reverse(self.endpoint, kwargs={"pk": notification.pk})
+        url = reverse(self.endpoint, kwargs={'pk': notification.pk})
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

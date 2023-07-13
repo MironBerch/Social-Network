@@ -14,28 +14,28 @@ class UserModelTests(TestCase):
 
     def setUp(self) -> None:
         User.objects.create_user(
-            email="user1@gmail.com",
-            username="JohnDoe",
-            first_name="John",
-            last_name="Doe",
-            password="password",
+            email='user1@gmail.com',
+            username='JohnDoe',
+            first_name='John',
+            last_name='Doe',
+            password='password',
         )
 
         user2 = User.objects.create_user(
-            email="user2@gmail.com",
-            username="PeterWilliams",
-            first_name="Peter",
-            last_name="Williams",
-            password="password",
+            email='user2@gmail.com',
+            username='PeterWilliams',
+            first_name='Peter',
+            last_name='Williams',
+            password='password',
         )
         user2.save()
 
         User.objects.create_superuser(
-            email="user3@gmail.com",
-            username="FrankSmith",
-            first_name="Frank",
-            last_name="Smith",
-            password="password",
+            email='user3@gmail.com',
+            username='FrankSmith',
+            first_name='Frank',
+            last_name='Smith',
+            password='password',
         )
 
     def test_model_verbose_name_single(self):
@@ -115,7 +115,7 @@ class UserModelTests(TestCase):
         """Test that create_superuser() creates new `superuser`."""
         user = User.objects.create_superuser(
             email='staff1@gmail.com',
-            username="TestTest",
+            username='TestTest',
             first_name='Test',
             last_name='Test',
             password='password',
@@ -128,8 +128,8 @@ class UserModelTests(TestCase):
     def test_get_or_create_get_existing_user(self):
         """Test that get_or_create() returns User object if it already exists."""
         user, created = User.objects.get_or_create(
-            email="user1@gmail.com",
-            username="JohnDoe",
+            email='user1@gmail.com',
+            username='JohnDoe',
         )
 
         self.assertEqual(user, User.objects.first())
@@ -138,15 +138,15 @@ class UserModelTests(TestCase):
     def test_get_or_create_create_new_user(self):
         """Test that get_or_create() creates new User object if it doesn't already exist."""
         user, created = User.objects.get_or_create(
-            email="new123@gmail.com",
-            username="JohnDoe3",
-            first_name="John",
-            last_name="Doe",
-            password="password",
+            email='new123@gmail.com',
+            username='JohnDoe3',
+            first_name='John',
+            last_name='Doe',
+            password='password',
         )
 
         self.assertNotEqual(user, User.objects.first())
-        self.assertEqual(user, User.objects.get(email="new123@gmail.com"))
+        self.assertEqual(user, User.objects.get(email='new123@gmail.com'))
         self.assertTrue(created)
 
 
@@ -155,7 +155,7 @@ class ProfileModelTests(TestCase):
     def setUp(self) -> None:
         User.objects.create_user(
             email='user1@gmail.com',
-            username="JohnDoe",
+            username='JohnDoe',
             first_name='John',
             last_name='Doe',
             password='password',
@@ -208,4 +208,4 @@ class ProfileModelTests(TestCase):
     def test_object_name_has_user_object_name(self):
         """Test that Profile object name is set up properly."""
         test_profile: Profile = Profile.objects.get(user=User.objects.first())
-        self.assertEqual(str(test_profile), f"Profile for {test_profile.user}")
+        self.assertEqual(str(test_profile), f'Profile for {test_profile.user}')
