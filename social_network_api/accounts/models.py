@@ -83,6 +83,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    def follow(self, user: object) -> None:
+        """
+        Follow `User`.
+        """
+        if user != self:
+            self.following.add(user)
+
 
 def get_default_profile_image() -> str:
     return 'default/default_profile_image.jpg'
