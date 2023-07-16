@@ -210,9 +210,25 @@ class Command(BaseCommand):
     Fake content command. Fills the database with fake data.
     """
 
-    def handle(self, *args: Any, **options: Any) -> str | None:
+    def add_arguments(self, parser) -> None:
+        parser.add_argument(
+            'number',
+            type=int,
+            help='Indicates the number of users to be created'
+        )
+
+    def handle(self, *args: Any, **kwargs: Any) -> None:
+        number = kwargs['number']
+
         Faker.seed(0)
-        create_users_and_edit_profiles_with_fake_data()
+
+        if number:
+            create_users_and_edit_profiles_with_fake_data(
+                number=number,
+            )
+        else:
+            create_users_and_edit_profiles_with_fake_data()
+
         create_reply_posts()
         create_reposts()
         create_likes()
