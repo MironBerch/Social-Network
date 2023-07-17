@@ -1,6 +1,8 @@
+from os import path, listdir
 from typing import Any
 from random import randrange, randint
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from faker import Faker
@@ -8,6 +10,8 @@ from faker import Faker
 from accounts.models import User, Profile
 from posts.models import Post
 
+
+BASE_DIR = settings.BASE_DIR
 
 faker = Faker()
 
@@ -43,6 +47,18 @@ def create_fake_user(
     return user
 
 
+def setup_fake_profile_image() -> str:
+    """
+    Setup fake profile image.
+    """
+
+    profile_images_dir_path = BASE_DIR / 'media' / 'fake' / 'avatars'
+    profile_images_dir = listdir(profile_images_dir_path)
+    random_profile_image = profile_images_dir[randrange(len(profile_images_dir))]
+
+    return path.join(profile_images_dir_path, random_profile_image)
+
+
 def edit_fake_user_profile(
         user: User,
         gender: str,
@@ -55,13 +71,13 @@ def edit_fake_user_profile(
     profile = Profile.objects.get(user=user)
     profile.gender = gender
     profile.description = description
+    profile.profile_image = setup_fake_profile_image()
     profile.save()
 
 
 def create_fake_posts(
     author: User,
-    #  content: str,
-):
+) -> None:
     """
     Create fake `Post`.
     """
@@ -74,7 +90,7 @@ def create_fake_posts(
 
 def create_users_and_edit_profiles_with_fake_data(
         number: int = 100,
-):
+) -> None:
     """
     Create `number` of users and edit their profiles with fake data.
     """
@@ -133,7 +149,7 @@ def create_reply_posts() -> None:
             )
 
 
-def create_reposts():
+def create_reposts() -> None:
     """
     Create `Post` reposts.
     """
@@ -222,13 +238,9 @@ class Command(BaseCommand):
 
         Faker.seed(0)
 
-        if number:
-            create_users_and_edit_profiles_with_fake_data(
-                number=number,
-            )
-        else:
-            create_users_and_edit_profiles_with_fake_data()
-
+        create_users_and_edit_profiles_with_fake_data(
+            number=number,
+        )
         create_reply_posts()
         create_reposts()
         create_likes()

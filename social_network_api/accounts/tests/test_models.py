@@ -4,7 +4,6 @@ from accounts.models import (
     User,
     Profile,
     get_default_profile_image,
-    get_default_profile_banner,
     get_profile_image_upload_path,
     get_profile_banner_upload_path,
 )
@@ -187,7 +186,6 @@ class ProfileModelTests(TestCase):
         self.assertTrue(profile_banner_field.blank)
         self.assertTrue(profile_banner_field.null)
         self.assertEqual(profile_banner_field.upload_to, get_profile_banner_upload_path)
-        self.assertEqual(profile_banner_field.default, get_default_profile_banner)
 
     def test_gender_field_params(self):
         """Test that gender field has all required parameters."""

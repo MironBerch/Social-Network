@@ -95,10 +95,6 @@ def get_default_profile_image() -> str:
     return 'default/default_profile_image.jpg'
 
 
-def get_default_profile_banner() -> str:
-    return 'default/default_profile_banner.jpg'
-
-
 def get_profile_image_upload_path(instance: 'Profile', filename: str) -> str:
     return f'upload/users/{instance.user.email}/profile_image/{filename}'
 
@@ -134,7 +130,6 @@ class Profile(models.Model):
         blank=True,
         null=True,
         upload_to=get_profile_banner_upload_path,
-        default=get_default_profile_banner,
     )
     gender = models.CharField(
         verbose_name='user gender',
