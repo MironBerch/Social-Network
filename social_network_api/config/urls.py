@@ -10,10 +10,10 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
-    path('posts/', include('posts.urls')),
-    path('search/', include('search.urls')),
-    path('notifications/', include('notifications.urls')),
+    path('api/accounts/', include('accounts.urls')),
+    path('api/posts/', include('posts.urls')),
+    path('api/search/', include('search.urls')),
+    path('api/notifications/', include('notifications.urls')),
 ]
 
 urlpatterns += [
