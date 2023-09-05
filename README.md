@@ -23,8 +23,10 @@ docker-compose up --build
 ```dotenv
 SECRET_KEY=8fajd3)on9ecoq&&8__eryh-d5sz@6!8ky3+y0u5k6gw8!q$^t
 DEBUG=0
-POSTGRES_USER=user
-POSTGRES_PASSWORD=password
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 POSTGRES_DB=postgres
 ```
 
